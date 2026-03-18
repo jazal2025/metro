@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metrology Pro — ISO 10360-2</title>
+<style>
+/* ── RESET & VARIABLES ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --bg-primary: #0c0e13;
+  --bg-secondary: #13161d;
+  --bg-card: #181c25;
+  --bg-card-hover: #1e2330;
+  --bg-input: #10131a;
+  --border: #262d3d;
+  --border-focus: #4a8eff;
+  --text-primary: #e8ecf4;
+  --text-secondary: #8892a8;
+  --text-dim: #5a6478;
+  --accent: #4a8eff;
+  --accent-glow: rgba(74,142,255,.15);
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+  --accent-amber: #fbbf24;
+  --accent-purple: #a78bfa;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Cascadia Code', 'SF Mono', 'Consolas', monospace;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,.4);
+  --transition: 180ms ease;
+}
+
+html { font-size: 15px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── LAYOUT ────────────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: auto 1fr;
+  min-height: 100vh;
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+header {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  height: 58px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: -.02em;
+}
+.logo svg { width: 26px; height: 26px; }
+.logo span { color: var(--accent); }
+.header-badge {
+  font-family: var(--font-mono);
+  font-size: .7rem;
+  color: var(--text-dim);
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+
+/* ── SIDEBAR ───────────────────────────────────────────────── */
+aside {
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.nav-section {
+  padding: 0 16px;
+  margin-bottom: 6px;
+  font-size: .65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-dim);
+}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: .88rem;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: left;
+  border-left: 3px solid transparent;
+}
+.nav-btn:hover { background: var(--bg-card); color: var(--text-primary); }
+.nav-btn.active {
+  background: var(--accent-glow);
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+.nav-btn svg { width: 18px; height: 18px; opacity: .7; flex-shrink: 0; }
+.nav-btn.active svg { opacity: 1; }
+
+/* ── MAIN ──────────────────────────────────────────────────── */
+main {
+  padding: 28px 32px;
+  overflow-y: auto;
+  max-height: calc(100vh - 58px);
+}
+.page { display: none; animation: fadeIn .25s ease; }
+.page.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: none; } }
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  margin-bottom: 4px;
+}
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: .88rem;
+  margin-bottom: 24px;
+}
+
+/* ── CARDS ──────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: .95rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title svg { width: 18px; height: 18px; color: var(--accent); }
+
+/* ── STATS ROW ─────────────────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  transition: border-color var(--transition);
+}
+.stat-card:hover { border-color: var(--accent); }
+.stat-label {
+  font-size: .7rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+.stat-unit {
+  font-size: .75rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+/* ── FORMS ──────────────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label {
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.field input, .field select, .field textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  font-size: .88rem;
+  font-family: inherit;
+  transition: border-color var(--transition);
+  outline: none;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.field textarea { resize: vertical; min-height: 60px; }
+.field input[type="file"] { padding: 8px; }
+.field input[type="file"]::file-selector-button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .8rem;
+  margin-right: 10px;
+}
+
+/* ── BUTTONS ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: var(--radius);
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+.btn svg { width: 16px; height: 16px; }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:hover { background: #3a7aee; box-shadow: 0 0 20px var(--accent-glow); }
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent); }
+.btn-danger {
+  background: transparent;
+  color: var(--accent-red);
+  border: 1px solid rgba(248,113,113,.3);
+}
+.btn-danger:hover { background: rgba(248,113,113,.1); }
+.btn-sm { padding: 6px 14px; font-size: .8rem; }
+.btn-group { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+
+/* ── TABLE ─────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .85rem;
+}
+thead th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(38,45,61,.5);
+  font-family: var(--font-mono);
+  font-size: .82rem;
+  white-space: nowrap;
+}
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: var(--bg-card-hover); }
+tbody tr.clickable { cursor: pointer; }
+
+/* ── BADGES ────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+.badge-pass { background: rgba(52,211,153,.15); color: var(--accent-green); }
+.badge-fail { background: rgba(248,113,113,.15); color: var(--accent-red); }
+.badge-open { background: rgba(251,191,36,.12); color: var(--accent-amber); }
+.badge-reported { background: rgba(167,139,250,.15); color: var(--accent-purple); }
+
+/* ── REPORT ────────────────────────────────────────────────── */
+.report-axis {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.report-axis-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+}
+.report-axis-title {
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.report-axis-body { padding: 20px; }
+.report-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+.metric {
+  padding: 10px 14px;
+  background: var(--bg-primary);
+  border-radius: var(--radius);
+  border: 1px solid rgba(38,45,61,.5);
+}
+.metric-label {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+.metric-value {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ── CHART (SVG) ───────────────────────────────────────────── */
+.chart-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 16px;
+}
+.chart-container svg { display: block; }
+.chart-container svg text {
+  font-family: var(--font-mono);
+  fill: var(--text-dim);
+  font-size: 11px;
+}
+.chart-container svg .grid-line { stroke: var(--border); stroke-width: 1; }
+.chart-container svg .axis-line { stroke: var(--text-dim); stroke-width: 1; }
+.chart-container svg .data-line { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart-container svg .data-dot { stroke-width: 2; }
+.chart-container svg .zero-line { stroke: var(--text-dim); stroke-dasharray: 6,4; stroke-width: 1; }
+.chart-container svg .mpe-line { stroke: var(--accent-red); stroke-dasharray: 4,3; stroke-width: 1.5; }
+.chart-container svg .mpe-label { fill: var(--accent-red); font-size: 10px; }
+
+/* ── TOAST ─────────────────────────────────────────────────── */
+.toast-container { position: fixed; top: 16px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  animation: slideIn .3s ease;
+  max-width: 400px;
+}
+.toast-success { background: #0f3d2e; color: var(--accent-green); border: 1px solid rgba(52,211,153,.3); }
+.toast-error { background: #3d1519; color: var(--accent-red); border: 1px solid rgba(248,113,113,.3); }
+.toast-info { background: #162040; color: var(--accent); border: 1px solid rgba(74,142,255,.3); }
+@keyframes slideIn { from { transform: translateX(40px); opacity:0; } to { transform: none; opacity:1; } }
+
+/* ── EMPTY STATE ───────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text-dim);
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 14px; opacity: .4; }
+.empty-state p { font-size: .9rem; }
+
+/* ── LOADING SPINNER ───────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── RESPONSIVE ────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .app { grid-template-columns: 1fr; }
+  aside {
+    flex-direction: row;
+    overflow-x: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px;
+    gap: 0;
+  }
+  .nav-section { display: none; }
+  .nav-btn { padding: 8px 14px; border-left: none; border-bottom: 3px solid transparent; font-size: .78rem; white-space: nowrap; }
+  .nav-btn.active { border-left-color: transparent; border-bottom-color: var(--accent); }
+  main { padding: 18px 14px; max-height: none; }
+  .form-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .report-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke="var(--accent)"/><line x1="12" y1="2" x2="12" y2="6" stroke="var(--accent)"/><line x1="12" y1="18" x2="12" y2="22" stroke="var(--accent)"/><line x1="2" y1="12" x2="6" y2="12" stroke="var(--accent)"/><line x1="18" y1="12" x2="22" y2="12" stroke="var(--accent)"/><circle cx="12" cy="12" r="3" stroke="var(--accent-green)"/></svg>
+      <span>Metrology</span>Pro
+    </div>
+    <div class="header-badge">ISO 10360-2 · VDI/VDE 2617</div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="nav-section">Flujo de trabajo</div>
+    <button class="nav-btn active" data-page="dashboard" onclick="showPage('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Panel
+    </button>
+    <button class="nav-btn" data-page="new-cal" onclick="showPage('new-cal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Nueva calibración
+    </button>
+    <button class="nav-btn" data-page="upload" onclick="showPage('upload')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Cargar datos
+    </button>
+    <button class="nav-btn" data-page="report" onclick="showPage('report')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Informe ISO
+    </button>
+    <div class="nav-section" style="margin-top:12px">Análisis</div>
+    <button class="nav-btn" data-page="history" onclick="showPage('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Historial
+    </button>
+    <button class="nav-btn" data-page="drift" onclick="showPage('drift')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Deriva
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <h1 class="page-title">Panel de control</h1>
+      <p class="page-subtitle">Resumen del estado del sistema de calibración</p>
+      <div class="stats-row" id="dashboard-stats"></div>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Últimas calibraciones
+        </div>
+        <div class="table-wrap" id="dashboard-table"></div>
+      </div>
+    </div>
+
+    <!-- ═══ NEW CALIBRATION ═══ -->
+    <div class="page" id="page-new-cal">
+      <h1 class="page-title">Nueva calibración</h1>
+      <p class="page-subtitle">Registra una sesión de calibración con los datos del equipo y condiciones ambientales</p>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Datos de la calibración
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Máquina / Equipo *</label>
+            <input type="text" id="cal-machine" placeholder="CMM Zeiss Contura G2">
+          </div>
+          <div class="field">
+            <label>Operador *</label>
+            <input type="text" id="cal-operator" placeholder="J. García">
+          </div>
+          <div class="field">
+            <label>Temperatura ambiente (°C)</label>
+            <input type="number" id="cal-temp" value="20" step="0.1">
+          </div>
+          <div class="field">
+            <label>Humedad relativa (%)</label>
+            <input type="number" id="cal-humidity" value="50" step="0.1">
+          </div>
+          <div class="field">
+            <label>Patrón utilizado</label>
+            <input type="text" id="cal-standard" placeholder="Bloque patrón grado 1 — Mitutoyo">
+          </div>
+          <div class="field">
+            <label>MPE fabricante (µm)</label>
+            <input type="number" id="cal-mpe" step="0.1" placeholder="Opcional">
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label>Notas</label>
+            <textarea id="cal-notes" placeholder="Observaciones adicionales..."></textarea>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="createCalibration()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            Crear calibración
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ UPLOAD ═══ -->
+    <div class="page" id="page-upload">
+      <h1 class="page-title">Cargar datos de medición</h1>
+      <p class="page-subtitle">Sube un archivo CSV con las mediciones asociadas a una calibración</p>
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Subir CSV
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Calibración *</label>
+            <select id="upload-cal-id"></select>
+          </div>
+          <div class="field">
+            <label>Archivo CSV *</label>
+            <input type="file" id="upload-file" accept=".csv">
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="uploadCSV()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Subir datos
+          </button>
+        </div>
+        <div style="margin-top:18px">
+          <p style="font-size:.8rem; color:var(--text-dim); margin-bottom:8px;">Formato CSV esperado:</p>
+          <pre style="background:var(--bg-primary); padding:14px; border-radius:var(--radius); font-family:var(--font-mono); font-size:.78rem; color:var(--text-secondary); overflow-x:auto; border: 1px solid var(--border);">nominal,measured,axis,direction,run
+0,0.0012,X,forward,1
+50,50.0034,X,forward,1
+100,100.0018,X,forward,1
+0,0.0008,X,backward,1
+50,50.0029,X,backward,1
+100,100.0015,X,backward,1</pre>
+          <p style="font-size:.76rem; color:var(--text-dim); margin-top:8px;">
+            Columnas obligatorias: <strong>nominal</strong>, <strong>measured</strong> (en mm).
+            Opcionales: axis (X/Y/Z), direction (forward/backward), run (1,2,3…).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REPORT ═══ -->
+    <div class="page" id="page-report">
+      <h1 class="page-title">Informe ISO 10360-2</h1>
+      <p class="page-subtitle">Genera y visualiza el informe de calibración conforme a norma</p>
+      <div class="card">
+        <div class="form-grid" style="align-items:end">
+          <div class="field">
+            <label>Calibración</label>
+            <select id="report-cal-id"></select>
+          </div>
+          <div>
+            <button class="btn btn-primary" onclick="generateReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Generar informe
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="report-content"></div>
+    </div>
+
+    <!-- ═══ HISTORY ═══ -->
+    <div class="page" id="page-history">
+      <h1 class="page-title">Historial de calibraciones</h1>
+      <p class="page-subtitle">Registro completo de todas las calibraciones realizadas</p>
+      <div class="card">
+        <div class="form-grid" style="align-items:end; margin-bottom:16px">
+          <div class="field">
+            <label>Filtrar por máquina</label>
+            <input type="text" id="hist-machine" placeholder="Buscar...">
+          </div>
+          <div class="field">
+            <label>Estado</label>
+            <select id="hist-status">
+              <option value="">Todos</option>
+              <option value="open">Abierta</option>
+              <option value="pass">Conforme</option>
+              <option value="fail">No conforme</option>
+              <option value="reported">Informada</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn btn-secondary" onclick="loadHistory()">Filtrar</button>
+          </div>
+        </div>
+        <div class="table-wrap" id="history-table"></div>
+      </div>
+    </div>
+
+    <!-- ═══ DRIFT ═══ -->
+    <div class="page" id="page-drift">
+      <h1 class="page-title">Análisis de deriva</h1>
+      <p class="page-subtitle">Evolución del error a lo largo del tiempo — tendencia y estabilidad</p>
+      <div class="card">
+        <div class="form-grid" style="align-items:end; margin-bottom:16px">
+          <div class="field">
+            <label>Máquina</label>
+            <input type="text" id="drift-machine" placeholder="Todas">
+          </div>
+          <div class="field">
+            <label>Eje</label>
+            <select id="drift-axis">
+              <option value="">Todos</option>
+              <option value="X">X</option>
+              <option value="Y">Y</option>
+              <option value="Z">Z</option>
+            </select>
+          </div>
+          <div>
+            <button class="btn btn-secondary" onclick="loadDrift()">Actualizar</button>
+          </div>
+        </div>
+        <div id="drift-chart" class="chart-container"></div>
+        <div class="table-wrap" id="drift-table" style="margin-top:18px"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   METROLOGY PRO — Frontend Application
+   ═══════════════════════════════════════════════════════════════ */
+
+const API = window.location.origin;
+
+// ── Navigation ───────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  const btn = document.querySelector(`.nav-btn[data-page="${id}"]`);
+  if (page) page.classList.add('active');
+  if (btn) btn.classList.add('active');
+
+  // Auto-load data when navigating
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'upload') loadCalSelect('upload-cal-id');
+  if (id === 'report') loadCalSelect('report-cal-id');
+  if (id === 'history') loadHistory();
+  if (id === 'drift') loadDrift();
+}
+
+// ── Toast notifications ──────────────────────────────────────
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ── API helpers ──────────────────────────────────────────────
+async function api(path, opts = {}) {
+  try {
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.detail || data.error || JSON.stringify(data);
+      throw new Error(msg);
+    }
+    return data;
+  } catch (err) {
+    toast(err.message, 'error');
+    throw err;
+  }
+}
+
+// ── Load calibrations into selects ───────────────────────────
+async function loadCalSelect(selectId) {
+  try {
+    const cals = await api('/api/calibrations/');
+    const sel = document.getElementById(selectId);
+    sel.innerHTML = cals.length
+      ? cals.map(c => `<option value="${c.id}">#${c.id} — ${c.machine} (${c.created_at.slice(0,10)})</option>`).join('')
+      : '<option value="">No hay calibraciones</option>';
+  } catch(e) {}
+}
+
+// ── Dashboard ────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const cals = await api('/api/calibrations/');
+    const total = cals.length;
+    const pass = cals.filter(c => c.status === 'pass').length;
+    const fail = cals.filter(c => c.status === 'fail').length;
+    const open = cals.filter(c => c.status === 'open').length;
+
+    document.getElementById('dashboard-stats').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">Total calibraciones</div>
+        <div class="stat-value">${total}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Conformes</div>
+        <div class="stat-value" style="color:var(--accent-green)">${pass}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">No conformes</div>
+        <div class="stat-value" style="color:var(--accent-red)">${fail}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Abiertas</div>
+        <div class="stat-value" style="color:var(--accent-amber)">${open}</div>
+      </div>
+    `;
+
+    const recent = cals.slice(0, 8);
+    document.getElementById('dashboard-table').innerHTML = recent.length
+      ? renderCalTable(recent)
+      : emptyState('No hay calibraciones registradas. Crea una para comenzar.');
+  } catch(e) {
+    document.getElementById('dashboard-stats').innerHTML = '';
+    document.getElementById('dashboard-table').innerHTML = emptyState('No se pudo conectar con el servidor.');
+  }
+}
+
+// ── Create calibration ───────────────────────────────────────
+async function createCalibration() {
+  const machine = document.getElementById('cal-machine').value.trim();
+  const operator = document.getElementById('cal-operator').value.trim();
+  if (!machine || !operator) { toast('Máquina y operador son obligatorios.', 'error'); return; }
+
+  const body = {
+    machine,
+    operator,
+    temperature: parseFloat(document.getElementById('cal-temp').value) || 20,
+    humidity: parseFloat(document.getElementById('cal-humidity').value) || 50,
+    standard_used: document.getElementById('cal-standard').value.trim() || null,
+    mpe: parseFloat(document.getElementById('cal-mpe').value) || null,
+    notes: document.getElementById('cal-notes').value.trim() || null,
+  };
+
+  try {
+    const cal = await api('/api/calibrations/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    toast(`Calibración #${cal.id} creada correctamente.`, 'success');
+    // Reset form
+    document.getElementById('cal-machine').value = '';
+    document.getElementById('cal-operator').value = '';
+    document.getElementById('cal-standard').value = '';
+    document.getElementById('cal-mpe').value = '';
+    document.getElementById('cal-notes').value = '';
+    showPage('upload');
+  } catch(e) {}
+}
+
+// ── Upload CSV ───────────────────────────────────────────────
+async function uploadCSV() {
+  const calId = document.getElementById('upload-cal-id').value;
+  const fileInput = document.getElementById('upload-file');
+  if (!calId) { toast('Selecciona una calibración.', 'error'); return; }
+  if (!fileInput.files.length) { toast('Selecciona un archivo CSV.', 'error'); return; }
+
+  const fd = new FormData();
+  fd.append('file', fileInput.files[0]);
+
+  try {
+    const res = await api(`/api/points/upload-csv/${calId}`, { method: 'POST', body: fd });
+    toast(`${res.points_inserted} puntos insertados — ejes: ${res.axes_detected.join(', ')}`, 'success');
+    fileInput.value = '';
+  } catch(e) {}
+}
+
+// ── Generate Report ──────────────────────────────────────────
+async function generateReport() {
+  const calId = document.getElementById('report-cal-id').value;
+  if (!calId) { toast('Selecciona una calibración.', 'error'); return; }
+
+  const container = document.getElementById('report-content');
+  container.innerHTML = '<div style="text-align:center;padding:40px"><div class="spinner"></div></div>';
+
+  try {
+    const r = await api(`/api/report/${calId}`, { method: 'POST' });
+    renderReport(r);
+  } catch(e) {
+    container.innerHTML = '';
+  }
+}
+
+function renderReport(r) {
+  const c = r.calibration;
+  const container = document.getElementById('report-content');
+
+  const overallBadge = r.overall_pass === true
+    ? '<span class="badge badge-pass">CONFORME</span>'
+    : r.overall_pass === false
+      ? '<span class="badge badge-fail">NO CONFORME</span>'
+      : '<span class="badge badge-reported">INFORMADO</span>';
+
+  let html = `
+    <div class="card" style="border-color: ${r.overall_pass === false ? 'var(--accent-red)' : r.overall_pass === true ? 'var(--accent-green)' : 'var(--border)'}">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px">
+        <div>
+          <div style="font-size:1.1rem; font-weight:700">Calibración #${c.id} — ${c.machine}</div>
+          <div style="color:var(--text-secondary); font-size:.82rem; margin-top:2px">
+            ${c.operator} · ${c.created_at.slice(0,10)} · ${c.temperature}°C · ${c.humidity}% HR
+          </div>
+        </div>
+        <div>${overallBadge}</div>
+      </div>
+      <div style="font-size:.78rem; color:var(--text-dim); margin-bottom:4px">${r.iso_standard}</div>
+      ${c.standard_used ? `<div style="font-size:.78rem; color:var(--text-dim)">Patrón: ${c.standard_used}</div>` : ''}
+    </div>
+  `;
+
+  r.axes.forEach(ax => {
+    const passBadge = ax.mpe_pass === true
+      ? '<span class="badge badge-pass">PASS</span>'
+      : ax.mpe_pass === false
+        ? '<span class="badge badge-fail">FAIL</span>'
+        : '';
+
+    html += `
+    <div class="report-axis">
+      <div class="report-axis-header">
+        <div class="report-axis-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" width="20" height="20"><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          Eje ${ax.axis} — ${ax.n_points} puntos · Rango nominal ${ax.nominal_range_mm} mm
+        </div>
+        ${passBadge}
+      </div>
+      <div class="report-axis-body">
+        <div class="report-metrics">
+          ${metric('E_UNI (span)', ax.iso_euni, 'µm')}
+          ${metric('Error medio', ax.mean_error_um, 'µm')}
+          ${metric('Desv. estándar', ax.std_error_um, 'µm')}
+          ${metric('Error máx.', ax.max_error_um, 'µm')}
+          ${metric('Error mín.', ax.min_error_um, 'µm')}
+          ${metric('Repetibilidad', ax.repeatability_um, 'µm')}
+          ${metric('Inc. expandida U', ax.expanded_uncertainty_um, 'µm')}
+          ${ax.hysteresis_um !== null ? metric('Histéresis', ax.hysteresis_um, 'µm') : ''}
+          ${ax.mpe_um !== null ? metric('MPE', ax.mpe_um, 'µm') : ''}
+        </div>
+        <div class="chart-container" id="chart-axis-${ax.axis}" style="margin-top:20px"></div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // Render charts
+  r.axes.forEach(ax => {
+    renderErrorChart(`chart-axis-${ax.axis}`, ax);
+  });
+}
+
+function metric(label, value, unit) {
+  const color = label.includes('MPE') ? 'var(--accent-amber)' : 'var(--text-primary)';
+  return `<div class="metric">
+    <div class="metric-label">${label}</div>
+    <div class="metric-value" style="color:${color}">${value}<span class="stat-unit">${unit}</span></div>
+  </div>`;
+}
+
+// ── History ──────────────────────────────────────────────────
+async function loadHistory() {
+  const machine = document.getElementById('hist-machine').value.trim();
+  const status = document.getElementById('hist-status').value;
+  let url = '/api/history/?limit=200';
+  if (machine) url += `&machine=${encodeURIComponent(machine)}`;
+  if (status) url += `&status=${status}`;
+
+  try {
+    const cals = await api(url);
+    document.getElementById('history-table').innerHTML = cals.length
+      ? renderCalTable(cals, true)
+      : emptyState('No se encontraron calibraciones con estos filtros.');
+  } catch(e) {}
+}
+
+// ── Drift ────────────────────────────────────────────────────
+async function loadDrift() {
+  const machine = document.getElementById('drift-machine').value.trim();
+  const axis = document.getElementById('drift-axis').value;
+  let url = '/api/analysis/drift?';
+  if (machine) url += `machine=${encodeURIComponent(machine)}&`;
+  if (axis) url += `axis=${axis}&`;
+
+  try {
+    const data = await api(url);
+    if (!data.length) {
+      document.getElementById('drift-chart').innerHTML = '';
+      document.getElementById('drift-table').innerHTML = emptyState('No hay datos de deriva disponibles.');
+      return;
+    }
+    renderDriftChart('drift-chart', data);
+    renderDriftTable('drift-table', data);
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SVG CHART RENDERING
+// ═══════════════════════════════════════════════════════════════
+
+function renderErrorChart(containerId, axisData) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const errors = axisData.errors_um;
+  const n = errors.length;
+  if (n === 0) return;
+
+  const W = Math.max(500, n * 40 + 120), H = 260;
+  const pad = { top: 25, right: 30, bottom: 40, left: 60 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+
+  const yMin = Math.min(0, ...errors) * 1.2;
+  const yMax = Math.max(0, ...errors) * 1.2;
+  const yRange = (yMax - yMin) || 1;
+
+  const xScale = (i) => pad.left + (i / (n - 1 || 1)) * cw;
+  const yScale = (v) => pad.top + ch - ((v - yMin) / yRange) * ch;
+
+  // Grid lines
+  const nGrid = 5;
+  let gridLines = '';
+  for (let i = 0; i <= nGrid; i++) {
+    const val = yMin + (yRange * i) / nGrid;
+    const y = yScale(val);
+    gridLines += `<line class="grid-line" x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}"/>`;
+    gridLines += `<text x="${pad.left - 8}" y="${y + 4}" text-anchor="end">${val.toFixed(1)}</text>`;
+  }
+
+  // Zero line
+  const zeroY = yScale(0);
+  const zeroLine = (yMin < 0 && yMax > 0)
+    ? `<line class="zero-line" x1="${pad.left}" y1="${zeroY}" x2="${W - pad.right}" y2="${zeroY}"/>`
+    : '';
+
+  // MPE lines
+  let mpeLines = '';
+  if (axisData.mpe_um) {
+    const mpeVal = axisData.mpe_um;
+    if (mpeVal / 2 < yMax) {
+      const y1 = yScale(mpeVal / 2);
+      const y2 = yScale(-mpeVal / 2);
+      mpeLines += `<line class="mpe-line" x1="${pad.left}" y1="${y1}" x2="${W - pad.right}" y2="${y1}"/>`;
+      mpeLines += `<text class="mpe-label" x="${W - pad.right + 4}" y="${y1 + 3}">+MPE/2</text>`;
+      mpeLines += `<line class="mpe-line" x1="${pad.left}" y1="${y2}" x2="${W - pad.right}" y2="${y2}"/>`;
+      mpeLines += `<text class="mpe-label" x="${W - pad.right + 4}" y="${y2 + 3}">-MPE/2</text>`;
+    }
+  }
+
+  // Data points and line
+  const points = errors.map((e, i) => `${xScale(i)},${yScale(e)}`).join(' ');
+  const dots = errors.map((e, i) => {
+    const color = (axisData.mpe_um && Math.abs(e) > axisData.mpe_um / 2) ? 'var(--accent-red)' : 'var(--accent)';
+    return `<circle class="data-dot" cx="${xScale(i)}" cy="${yScale(e)}" r="4" fill="${color}" stroke="var(--bg-card)"/>`;
+  }).join('');
+
+  // X labels
+  const xLabels = errors.map((_, i) => {
+    if (n <= 20 || i % Math.ceil(n / 15) === 0) {
+      return `<text x="${xScale(i)}" y="${H - 8}" text-anchor="middle">${i + 1}</text>`;
+    }
+    return '';
+  }).join('');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      ${gridLines}
+      ${zeroLine}
+      ${mpeLines}
+      <line class="axis-line" x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${H - pad.bottom}"/>
+      <line class="axis-line" x1="${pad.left}" y1="${H - pad.bottom}" x2="${W - pad.right}" y2="${H - pad.bottom}"/>
+      <polyline class="data-line" stroke="var(--accent)" points="${points}"/>
+      ${dots}
+      ${xLabels}
+      <text x="${pad.left - 8}" y="${pad.top - 8}" text-anchor="end" style="font-size:10px;fill:var(--text-dim)">µm</text>
+      <text x="${W / 2}" y="${H - 1}" text-anchor="middle" style="font-size:10px;fill:var(--text-dim)">Punto de medición</text>
+    </svg>`;
+}
+
+function renderDriftChart(containerId, data) {
+  const el = document.getElementById(containerId);
+  if (!el || !data.length) return;
+
+  const W = Math.max(600, data.length * 60 + 120), H = 300;
+  const pad = { top: 30, right: 30, bottom: 60, left: 65 };
+  const cw = W - pad.left - pad.right;
+  const ch = H - pad.top - pad.bottom;
+
+  const values = data.map(d => d.E_span_um);
+  const yMin = 0;
+  const yMax = Math.max(...values) * 1.25 || 1;
+  const yRange = yMax - yMin;
+
+  const xScale = (i) => pad.left + (i / (data.length - 1 || 1)) * cw;
+  const yScale = (v) => pad.top + ch - ((v - yMin) / yRange) * ch;
+
+  // Colores por eje
+  const axisColors = { X: 'var(--accent)', Y: 'var(--accent-green)', Z: 'var(--accent-purple)' };
+
+  // Grid
+  const nGrid = 5;
+  let gridLines = '';
+  for (let i = 0; i <= nGrid; i++) {
+    const val = yMin + (yRange * i) / nGrid;
+    const y = yScale(val);
+    gridLines += `<line class="grid-line" x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}"/>`;
+    gridLines += `<text x="${pad.left - 8}" y="${y + 4}" text-anchor="end">${val.toFixed(1)}</text>`;
+  }
+
+  // Group by axis
+  const axes = [...new Set(data.map(d => d.axis))];
+  let lines = '';
+  let dots = '';
+
+  axes.forEach(ax => {
+    const axData = data.filter(d => d.axis === ax);
+    const color = axisColors[ax] || 'var(--accent-amber)';
+    const pts = axData.map((d, i) => {
+      const idx = data.indexOf(d);
+      return `${xScale(idx)},${yScale(d.E_span_um)}`;
+    }).join(' ');
+    lines += `<polyline class="data-line" stroke="${color}" points="${pts}"/>`;
+    axData.forEach(d => {
+      const idx = data.indexOf(d);
+      dots += `<circle class="data-dot" cx="${xScale(idx)}" cy="${yScale(d.E_span_um)}" r="4.5" fill="${color}" stroke="var(--bg-card)"/>`;
+    });
+  });
+
+  // X labels (dates)
+  const xLabels = data.map((d, i) => {
+    if (data.length <= 15 || i % Math.ceil(data.length / 12) === 0) {
+      const label = d.date.slice(0, 10);
+      return `<text x="${xScale(i)}" y="${H - pad.bottom + 18}" text-anchor="middle" transform="rotate(-30 ${xScale(i)} ${H - pad.bottom + 18})" style="font-size:10px">${label}</text>`;
+    }
+    return '';
+  }).join('');
+
+  // Legend
+  const legend = axes.map((ax, i) => {
+    const color = axisColors[ax] || 'var(--accent-amber)';
+    const lx = pad.left + 10 + i * 70;
+    return `<rect x="${lx}" y="${pad.top - 20}" width="12" height="3" rx="1" fill="${color}"/>
+            <text x="${lx + 16}" y="${pad.top - 15}" style="font-size:11px;fill:var(--text-secondary)">Eje ${ax}</text>`;
+  }).join('');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      ${gridLines}
+      <line class="axis-line" x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${H - pad.bottom}"/>
+      <line class="axis-line" x1="${pad.left}" y1="${H - pad.bottom}" x2="${W - pad.right}" y2="${H - pad.bottom}"/>
+      ${lines}
+      ${dots}
+      ${xLabels}
+      ${legend}
+      <text x="${pad.left - 8}" y="${pad.top - 8}" text-anchor="end" style="font-size:10px;fill:var(--text-dim)">E span (µm)</text>
+    </svg>`;
+}
+
+function renderDriftTable(containerId, data) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Fecha</th><th>Máquina</th><th>Eje</th><th>E span (µm)</th><th>Error medio (µm)</th>
+    </tr></thead>
+    <tbody>
+      ${data.map(d => `<tr>
+        <td>${d.date.slice(0,10)}</td>
+        <td style="font-family:var(--font-body)">${d.machine}</td>
+        <td>${d.axis}</td>
+        <td>${d.E_span_um.toFixed(1)}</td>
+        <td>${d.mean_error_um.toFixed(1)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ── Shared renders ───────────────────────────────────────────
+function statusBadge(s) {
+  const map = { pass:'badge-pass', fail:'badge-fail', open:'badge-open', reported:'badge-reported' };
+  const labels = { pass:'Conforme', fail:'No conforme', open:'Abierta', reported:'Informada' };
+  return `<span class="badge ${map[s]||'badge-open'}">${labels[s]||s}</span>`;
+}
+
+function renderCalTable(cals, showDelete = false) {
+  return `<table>
+    <thead><tr>
+      <th>ID</th><th>Máquina</th><th>Operador</th><th>Fecha</th><th>Temp.</th><th>Estado</th>
+      ${showDelete ? '<th></th>' : ''}
+    </tr></thead>
+    <tbody>
+      ${cals.map(c => `<tr>
+        <td style="color:var(--accent)">#${c.id}</td>
+        <td style="font-family:var(--font-body)">${c.machine}</td>
+        <td style="font-family:var(--font-body)">${c.operator}</td>
+        <td>${c.created_at.slice(0,10)}</td>
+        <td>${c.temperature}°C</td>
+        <td>${statusBadge(c.status)}</td>
+        ${showDelete ? `<td><button class="btn btn-danger btn-sm" onclick="deleteCal(${c.id})">Eliminar</button></td>` : ''}
+      </tr>`).join('')}
+    </tbody>
+  </table>`;
+}
+
+function emptyState(msg) {
+  return `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    <p>${msg}</p>
+  </div>`;
+}
+
+// ── Delete calibration ───────────────────────────────────────
+async function deleteCal(id) {
+  if (!confirm(`¿Eliminar calibración #${id} y todos sus datos?`)) return;
+  try {
+    await api(`/api/calibrations/${id}`, { method: 'DELETE' });
+    toast(`Calibración #${id} eliminada.`, 'success');
+    loadHistory();
+  } catch(e) {}
+}
+
+// ── Init ─────────────────────────────────────────────────────
+loadDashboard();
+</script>
+</body>
+</html>
