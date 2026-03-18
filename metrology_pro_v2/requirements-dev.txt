@@ -1,0 +1,8 @@
+# Development and Testing Dependencies
+
+- pytest
+- flake8
+- black
+- mypy
+- coverage
+- pre-commit
